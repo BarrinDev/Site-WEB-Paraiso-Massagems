@@ -1,0 +1,337 @@
+/* ==========================================================================
+   Paraíso das Massagens
+   Base: versão estática e legível (sem JS ou com movimento reduzido).
+   html.motion: cenas fixas, em ritmo de respiração.
+   ========================================================================== */
+
+:root {
+  --rosa: #f6e9e4;          /* fundo rosa-claro do flyer */
+  --nude: #efd8cd;
+  --nude-2: #e6c4b6;
+  --rosado: #c98f86;        /* detalhes e ilustrações */
+  --vinho: #6e2a2c;         /* títulos e botões (branco sobre ele: 10:1) */
+  --vinho-escuro: #3f1a1c;  /* fundo escuro */
+  --texto: #3d1f20;
+  --texto-2: #6b4a45;       /* secundário sobre rosa (7:1) */
+  --claro-2: #e9cfc6;       /* secundário sobre vinho-escuro (10:1) */
+
+  --titulo: 'Marcellus', 'Trajan Pro', Georgia, serif;
+  --corpo: 'Mulish', 'Segoe UI', sans-serif;
+  --script: 'Pinyon Script', cursive;
+  --lado: clamp(1.1rem, 5vw, 5rem);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+body {
+  margin: 0; background: var(--rosa); color: var(--texto);
+  font-family: var(--corpo); font-size: clamp(1.06rem, 1rem + .25vw, 1.2rem); line-height: 1.65;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+h1, h2, h3, p, ol, ul, dl, dd, figure, blockquote { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+em { font-style: italic; }
+
+:focus-visible { outline: 2px solid var(--vinho); outline-offset: 4px; }
+.cena-respire :focus-visible, .cena-final :focus-visible, .mapa :focus-visible { outline-color: var(--nude); }
+
+.sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.pular { position: fixed; z-index: 300; top: .75rem; left: .75rem; padding: .7rem 1rem; background: var(--vinho); color: #fff; transform: translateY(-180%); }
+.pular:focus { transform: none; }
+.defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.line { overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em; }
+.word { display: inline-block; }
+
+.frame { position: relative; overflow: hidden; background: var(--nude); }
+.frame img { width: 100%; height: 100%; object-fit: cover; }
+.frame.vazio img { visibility: hidden; }
+.frame.vazio::after { content: attr(data-rotulo); position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 1rem; font-family: var(--titulo); font-size: 1.05rem; color: var(--texto-2); }
+
+/* ---------- Preloader ---------- */
+.pre { display: none; }
+html.motion .pre { display: grid; place-items: center; align-content: center; gap: 1.2rem; position: fixed; inset: 0; z-index: 200; background: var(--rosa); pointer-events: none; }
+.pre-lotus { width: min(52vw, 260px); overflow: visible; }
+.pre-p, .pre-base { fill: none; stroke: var(--vinho); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+.pre-num { font-family: var(--titulo); color: var(--texto-2); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+
+/* ---------- Interface fixa ---------- */
+.topo { position: fixed; inset: 0 0 auto; z-index: 90; display: flex; justify-content: space-between; align-items: center; padding: .9rem var(--lado); pointer-events: none; }
+.topo > * { pointer-events: auto; }
+.marca { display: flex; align-items: center; gap: .55rem; text-decoration: none; color: var(--vinho); background: var(--rosa); padding: .3rem .9rem .3rem .5rem; border-radius: 999px; }
+.marca-lotus { width: 38px; height: 23px; color: var(--vinho); }
+.marca-txt { display: grid; line-height: 1; }
+.marca-script { font-family: var(--script); font-size: 1.7rem; line-height: .9; }
+.marca-sub { font-family: var(--titulo); font-size: .78rem; letter-spacing: .02em; color: var(--texto-2); }
+.menu-btn { min-height: 44px; padding: 0 1.2rem; border-radius: 999px; background: var(--rosa); color: var(--vinho); font-family: var(--titulo); font-size: 1.05rem; border: 1px solid rgba(110, 42, 44, .25); }
+
+.prog { position: fixed; z-index: 80; right: clamp(.4rem, 1.4vw, 1.4rem); top: 50%; width: 30px; height: 50vh; transform: translateY(-50%); }
+html:not(.motion) .prog { display: none; }
+.prog-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.prog-base, .prog-cheio { fill: none; stroke-linecap: round; }
+.prog-base { stroke: rgba(110, 42, 44, .22); stroke-width: 1.4; }
+.prog-cheio { stroke: var(--vinho); stroke-width: 2.2; }
+.prog-pontos li { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; }
+.prog-pontos button { width: 100%; height: 100%; display: grid; place-items: center; }
+.prog-pontos button::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--rosa); border: 1.5px solid var(--vinho); transition: transform .5s, background .5s; }
+.prog-pontos .atual button::before { background: var(--vinho); transform: scale(1.4); }
+.prog-pontos .rotulo { position: absolute; right: 34px; top: 50%; transform: translateY(-50%); white-space: nowrap; background: var(--vinho); color: #fff; font-size: .9rem; padding: .2rem .65rem; border-radius: 999px; opacity: 0; transition: opacity .4s; pointer-events: none; }
+.prog-pontos button:hover .rotulo, .prog-pontos button:focus-visible .rotulo { opacity: 1; }
+
+.mapa { position: fixed; inset: 0; z-index: 150; background: var(--vinho-escuro); color: #fff; overflow-y: auto; }
+.mapa[hidden] { display: none; }
+.mapa-dentro { min-height: 100%; display: grid; align-content: space-between; gap: 2.4rem; padding: 5.5rem var(--lado) 2rem; }
+.mapa-fechar { position: absolute; top: .9rem; right: var(--lado); min-height: 44px; padding: 0 1.2rem; border-radius: 999px; border: 1px solid rgba(255,255,255,.35); font-family: var(--titulo); }
+.mapa-lista a { display: flex; align-items: baseline; gap: 1rem; padding: .45rem 0; text-decoration: none; font-family: var(--titulo); font-size: clamp(1.8rem, 5vw, 4rem); line-height: 1.1; }
+.mapa-lista a:hover .mapa-nome { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 8px; }
+.mapa-n { font-family: var(--corpo); font-size: .95rem; color: var(--claro-2); min-width: 1.4rem; }
+.aqui { margin-left: auto; align-self: center; font-family: var(--corpo); font-size: .9rem; background: var(--rosa); color: var(--vinho); padding: .2rem .7rem; border-radius: 999px; white-space: nowrap; }
+.mapa-pe { color: var(--claro-2); }
+
+.zap { position: fixed; z-index: 85; right: clamp(.9rem, 2vw, 1.8rem); bottom: clamp(.9rem, 2vw, 1.8rem); width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--vinho); color: #fff; transition: transform .5s; }
+.zap:hover { transform: scale(1.05); }
+.zap svg { width: 26px; height: 26px; }
+
+/* ==========================================================================
+   CENAS — base estática
+   ========================================================================== */
+.cena { position: relative; }
+
+/* 1 · Abertura */
+.cena-abertura .palco { padding: 8rem var(--lado) 5rem; }
+.calor, .mare, .ab-dica { display: none; }
+.ab-frase { font-family: var(--titulo); font-weight: 400; color: var(--vinho); font-size: clamp(3rem, 9vw, 9rem); line-height: 1; }
+.ab-l { display: block; }
+.ab-l:nth-child(3) { padding-left: .8em; }
+.ab-l:nth-child(4) { padding-left: 1.6em; }
+.ab-sub { margin-top: 2rem; max-width: 34ch; color: var(--texto-2); font-size: 1.15em; }
+
+/* 2 · Respire */
+.cena-respire { background: var(--vinho-escuro); color: #fff; padding: 6rem var(--lado); text-align: center; }
+.cena-respire .palco { display: grid; justify-items: center; gap: 2rem; }
+.resp-tit { font-family: var(--titulo); font-weight: 400; font-size: clamp(2.2rem, 5vw, 4.6rem); line-height: 1.05; }
+.respiro { position: relative; width: min(70vw, 340px); aspect-ratio: 1; }
+.respiro-scroll, .respiro-dedo { position: absolute; inset: 0; }
+.respiro-anel { position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid var(--nude); }
+.respiro-miolo { position: absolute; inset: 14%; border-radius: 50%; background: var(--vinho); }
+.resp-palavra { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--titulo); font-size: clamp(1.6rem, 3vw, 2.4rem); }
+.resp-solta { display: none; }
+.resp-dica { color: var(--claro-2); max-width: 34ch; }
+.resp-dica-dedo { display: block; }
+.resp-fim { font-family: var(--titulo); font-size: 1.5rem; color: var(--nude); }
+.resp-cobre { display: none; }
+
+/* 3 · Massagens */
+.cena-mass { padding: 5rem var(--lado); background: var(--rosa); }
+.mass-tit { font-family: var(--titulo); font-weight: 400; color: var(--vinho); font-size: clamp(2.6rem, 6vw, 5.6rem); line-height: 1; margin-bottom: 3rem; }
+.mass-lista { display: grid; gap: 4rem; }
+.mass { display: grid; gap: 1.4rem; }
+.ilu { width: min(70vw, 300px); height: auto; overflow: visible; }
+.pedra { fill: var(--nude-2); stroke: var(--vinho); stroke-width: 1.5; }
+.pedra:nth-child(2) { fill: var(--rosado); }
+.pedra:nth-child(3) { fill: #b07a72; }
+.pedra:nth-child(4) { fill: var(--vinho); }
+.vapor, .fluxo { fill: none; stroke: var(--rosado); stroke-width: 2; stroke-linecap: round; }
+.fluxo { stroke: var(--vinho); stroke-width: 1.6; }
+.bambu rect { fill: #d9b99c; stroke: var(--vinho); stroke-width: 1.5; }
+.bambu path { stroke: var(--vinho); stroke-width: 1.5; }
+.copo path:first-child { fill: rgba(201, 143, 134, .35); stroke: var(--vinho); stroke-width: 1.5; }
+.copo path:last-child { stroke: var(--vinho); stroke-width: 3; stroke-linecap: round; }
+.mass-n { font-family: var(--titulo); color: var(--rosado); font-size: 1.1rem; }
+.mass-nome { font-family: var(--titulo); font-weight: 400; color: var(--vinho); font-size: clamp(2.2rem, 4.8vw, 4.6rem); line-height: 1; margin: .3rem 0 1.2rem; }
+.mass-dados { display: grid; gap: .9rem; max-width: 44ch; }
+.mass-dados div { display: grid; grid-template-columns: 6rem 1fr; gap: 1rem; }
+.mass-dados dt { font-family: var(--titulo); color: var(--vinho); }
+.mass-dados dd { color: var(--texto-2); }
+.palpebra { display: none; }
+
+/* 4 · Por objetivo */
+.cena-obj { background: var(--nude); padding: 5rem var(--lado); }
+.obj-tit { font-family: var(--titulo); font-weight: 400; color: var(--vinho); font-size: clamp(2.4rem, 5.6vw, 5.2rem); line-height: 1.05; margin-bottom: 3rem; max-width: 14ch; }
+.grupos { display: grid; gap: 3.4rem; }
+.grupo-nome { font-family: var(--titulo); font-weight: 400; font-size: clamp(2rem, 4vw, 3.6rem); line-height: 1; color: var(--vinho); margin-bottom: 1.4rem; }
+.grupo-n { font-size: .55em; color: var(--texto-2); margin-right: .3em; }
+.grupo-itens li { display: grid; gap: .1rem; padding: .9rem 0; border-top: 1px solid rgba(110, 42, 44, .2); color: var(--texto-2); }
+.grupo-itens strong { font-family: var(--titulo); font-weight: 400; font-size: 1.35rem; color: var(--texto); }
+.obj-tom { display: none; }
+
+/* 5 · Quem cuida */
+.cena-quem { background: var(--rosa); padding: 5rem var(--lado); }
+.cena-quem .palco { display: grid; gap: 3rem; align-items: center; }
+.quem-foto { position: relative; width: min(72vw, 360px); }
+.quem-foto .frame { aspect-ratio: 3 / 4; border-radius: 50%; }
+.quem-lotus { position: absolute; left: 50%; bottom: -24px; width: 90px; height: 54px; margin-left: -45px; color: var(--vinho); background: var(--rosa); padding: 4px 10px; }
+.quem-tit { font-family: var(--titulo); font-weight: 400; color: var(--vinho); font-size: clamp(2.4rem, 5.4vw, 5rem); line-height: 1.02; }
+.quem-nome { margin-top: 1.4rem; font-weight: 600; font-size: 1.15em; }
+.quem-nome span { display: block; font-weight: 400; color: var(--texto-2); font-size: .9em; }
+.quem-fala { margin-top: 1.6rem; padding-left: 1.2rem; border-left: 1px solid var(--rosado); }
+.quem-fala p { font-family: var(--titulo); font-size: clamp(1.3rem, 2vw, 1.8rem); line-height: 1.4; color: var(--texto); max-width: 30ch; }
+.quem-obs { margin-top: 1.4rem; color: var(--texto-2); font-size: 1rem; }
+
+/* 6 · Como agendar */
+.cena-agenda { background: var(--nude); padding: 5rem var(--lado); }
+.ag-tit { font-family: var(--titulo); font-weight: 400; color: var(--vinho); font-size: clamp(2.4rem, 5.6vw, 5.2rem); line-height: 1; margin-bottom: 2.6rem; }
+.ag-onda { display: none; }
+.ag-passos { display: grid; gap: 2rem; }
+.ag-passos li { display: grid; grid-template-columns: 3rem 1fr; gap: .2rem 1rem; }
+.ag-n { grid-row: span 2; display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 50%; border: 1px solid var(--vinho); font-family: var(--titulo); font-size: 1.3rem; color: var(--vinho); background: var(--rosa); }
+.ag-passos h3 { font-family: var(--titulo); font-weight: 400; font-size: clamp(1.5rem, 2.4vw, 2rem); color: var(--vinho); line-height: 1.15; }
+.ag-passos p { color: var(--texto-2); max-width: 32ch; }
+.ag-info { display: grid; gap: .8rem; margin-top: 3rem; max-width: 640px; }
+.ag-info div { display: grid; grid-template-columns: 6.4rem 1fr; gap: 1rem; padding-top: .8rem; border-top: 1px solid rgba(110, 42, 44, .2); }
+.ag-info dt { font-family: var(--titulo); color: var(--vinho); }
+.ag-info dd { color: var(--texto); }
+
+/* 7 · Final */
+.cena-final { background: var(--vinho-escuro); color: #fff; }
+.final-dentro { display: grid; justify-items: center; gap: 2rem; text-align: center; padding: 8rem var(--lado) 5rem; }
+.final-lotus { width: 120px; height: 72px; color: var(--nude); }
+.final-tit { font-family: var(--titulo); font-weight: 400; font-size: clamp(2.8rem, 7.4vw, 7.4rem); line-height: 1; max-width: 13ch; }
+.btn-agendar { display: inline-flex; align-items: center; min-height: 58px; padding: 1.05rem 2rem; border-radius: 999px; background: var(--rosa); color: var(--vinho); text-decoration: none; font-family: var(--titulo); font-size: clamp(1.1rem, 1.8vw, 1.4rem); transition: background .5s; }
+.btn-agendar:hover { background: var(--nude); }
+.final-insta { color: var(--claro-2); text-underline-offset: 6px; }
+.rodape { display: flex; flex-wrap: wrap; align-items: baseline; gap: .6rem 2rem; padding: 2.4rem var(--lado) 6.5rem; color: var(--claro-2); font-size: 1rem; border-top: 1px solid rgba(255,255,255,.12); }
+.rodape-marca { margin-right: auto; font-family: var(--titulo); color: #fff; }
+.rodape-marca .marca-script { font-size: 2rem; margin-right: .2rem; }
+
+@media (min-width: 900px) {
+  .mass { grid-template-columns: auto 1fr; gap: 5vw; align-items: center; }
+  .grupos { grid-template-columns: repeat(3, 1fr); gap: 3vw; }
+  .cena-quem .palco { grid-template-columns: auto 1fr; gap: 6vw; }
+  .ag-passos { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ==========================================================================
+   CENAS — versão cinematográfica
+   ========================================================================== */
+html.motion .topo, html.motion .zap, html.motion .prog { opacity: 0; }
+html.motion .palco { position: relative; height: 100svh; overflow: hidden; }
+html.motion .cena-respire, html.motion .cena-mass, html.motion .cena-obj, html.motion .cena-quem, html.motion .cena-agenda { padding: 0; }
+
+/* 1 · Abertura: o fundo esquenta como uma vela acendendo */
+html.motion .cena-abertura .palco { padding: 0; background: var(--rosa); }
+html.motion .calor { display: block; position: absolute; inset: 0; opacity: 0; }
+html.motion .calor-1 { background: var(--nude); }
+html.motion .calor-2 { background: var(--nude-2); }
+html.motion .ab-frase { position: absolute; z-index: 2; left: var(--lado); right: var(--lado); top: 50%; transform: translateY(-56%); }
+html.motion .ab-l { opacity: 0; transform-origin: 0 60%; }
+html.motion .ab-sub { position: absolute; z-index: 2; left: var(--lado); bottom: 8vh; margin: 0; }
+html.motion .ab-dica { display: block; position: absolute; z-index: 2; right: calc(var(--lado) + 2.6rem); bottom: 8vh; font-family: var(--titulo); color: var(--texto-2); }
+html.motion .mare { display: block; position: absolute; left: 0; right: 0; top: 100%; z-index: 6; height: 125svh; pointer-events: none; }
+html.motion .mare svg { display: block; width: 100%; height: 12vh; fill: var(--vinho-escuro); }
+html.motion .mare-corpo { height: calc(100% - 12vh + 1px); margin-top: -1px; background: var(--vinho-escuro); }
+
+/* 2 · Respire */
+html.motion .cena-respire .palco { display: block; background: var(--vinho-escuro); }
+html.motion .resp-tit { position: absolute; left: 0; right: 0; top: 6rem; }
+html.motion .respiro { position: absolute; left: 50%; top: 52%; width: min(56vh, 60vw); margin: calc(min(56vh, 60vw) / -2) 0 0 calc(min(56vh, 60vw) / -2); touch-action: none; cursor: pointer; }
+html.motion .respiro-scroll { transform: scale(.42); }
+html.motion .resp-solta { display: grid; opacity: 0; }
+html.motion .resp-dica { position: absolute; left: var(--lado); right: var(--lado); bottom: 6vh; margin: 0 auto; }
+html.motion .resp-fim { position: absolute; left: var(--lado); right: var(--lado); bottom: 6vh; opacity: 0; }
+html.motion .resp-cobre { display: block; position: absolute; left: 50%; top: 52%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--rosa); transform: scale(0); z-index: 5; }
+
+/* 3 · Massagens */
+html.motion .cena-mass .palco { background: var(--rosa); }
+html.motion .mass-tit { position: absolute; z-index: 3; left: var(--lado); top: 5.6rem; margin: 0; font-size: clamp(1.4rem, 2vw, 1.9rem); }
+html.motion .mass-lista { position: absolute; inset: 0; display: block; }
+html.motion .mass { position: absolute; inset: 0; display: block; }
+html.motion .ilu { position: absolute; left: 10vw; top: 50%; width: min(36vw, 64vh); margin-top: calc(min(36vw, 64vh) / -2); }
+html.motion .mass-txt { position: absolute; left: 52vw; right: calc(var(--lado) + 3rem); top: 50%; transform: translateY(-46%); }
+html.motion .mass-n, html.motion .mass-dados { opacity: 0; }
+html.motion .palpebra { display: block; position: absolute; left: 0; right: 0; height: 50.5%; z-index: 9; background: var(--nude); transform: scaleY(0); }
+html.motion .palpebra-cima { top: 0; transform-origin: 50% 0; }
+html.motion .palpebra-baixo { bottom: 0; transform-origin: 50% 100%; }
+
+/* 4 · Por objetivo */
+html.motion .cena-obj .palco { background: var(--nude); }
+html.motion .obj-tit { position: absolute; z-index: 3; left: var(--lado); top: 5.6rem; margin: 0; font-size: clamp(1.4rem, 2vw, 1.9rem); max-width: none; }
+html.motion .grupos { position: absolute; inset: 0; display: block; }
+html.motion .grupo { position: absolute; inset: 0; }
+html.motion .grupo-nome { position: absolute; left: var(--lado); top: 50%; width: 40vw; transform: translateY(-50%); margin: 0; font-size: clamp(3rem, 6vw, 6.4rem); clip-path: inset(0 0 100% 0); }
+html.motion .grupo-n { display: block; font-size: .4em; margin-bottom: .4em; }
+html.motion .grupo-itens { position: absolute; left: 50vw; right: calc(var(--lado) + 3rem); top: 50%; transform: translateY(-50%); }
+html.motion .grupo-itens li { opacity: 0; }
+html.motion .obj-tom { display: block; position: absolute; inset: 0; z-index: 8; background: var(--rosa); opacity: 0; }
+
+/* 5 · Quem cuida */
+html.motion .cena-quem .palco { display: block; background: var(--rosa); }
+html.motion .quem-foto { position: absolute; left: 12vw; top: 50%; width: min(28vw, 50vh); transform: translateY(-50%); }
+html.motion .quem-foto .frame { clip-path: inset(100% 0% 0% 0% round 50%); border-radius: 0; }
+html.motion .quem-txt { position: absolute; left: 50vw; right: calc(var(--lado) + 3rem); top: 50%; transform: translateY(-50%); }
+html.motion .quem-nome, html.motion .quem-obs { opacity: 0; }
+
+/* 6 · Como agendar: sobe por cima de "Quem cuida" */
+html.motion .cena-agenda { position: relative; z-index: 2; margin-top: -100svh; border-radius: 40px 40px 0 0; }
+html.motion .cena-agenda .palco { background: var(--nude); border-radius: 40px 40px 0 0; }
+html.motion .ag-tit { position: absolute; left: var(--lado); top: 6rem; margin: 0; }
+html.motion .ag-caminho { position: absolute; left: var(--lado); right: calc(var(--lado) + 3rem); top: 38vh; }
+html.motion .ag-onda { display: block; position: absolute; left: 0; right: 0; top: 0; width: 100%; height: 12vh; overflow: visible; }
+html.motion .ag-onda path { fill: none; stroke: var(--vinho); stroke-width: 1.4; }
+html.motion .ag-passos { grid-template-columns: repeat(3, 1fr); gap: 3vw; padding-top: 3vh; }
+html.motion .ag-passos li { display: block; }
+html.motion .ag-n { margin-bottom: 1rem; transform: scale(0); }
+html.motion .ag-passos h3, html.motion .ag-passos p { opacity: 0; }
+html.motion .ag-info { position: absolute; left: var(--lado); right: calc(var(--lado) + 3rem); bottom: 6vh; margin: 0; grid-template-columns: repeat(3, 1fr); max-width: none; gap: 2vw; }
+html.motion .ag-info div { grid-template-columns: 1fr; gap: .2rem; }
+
+/* 7 · Final: sobe como um arco */
+html.motion .cena-final { clip-path: inset(30% 0% 0% 0% round 50% 50% 0 0 / 30% 30% 0 0); }
+
+/* ---------- Celular ---------- */
+@media (max-width: 768px) {
+  .prog { top: 0; left: 0; right: 0; width: auto; height: 12px; transform: none; }
+  .prog-pontos { display: none; }
+  .marca-sub { display: none; }
+
+  html.motion .ab-frase { font-size: 15vw; }
+  html.motion .ab-dica { display: none; }
+  html.motion .ab-sub { right: var(--lado); }
+
+  html.motion .resp-tit { top: 5rem; font-size: 2.1rem; padding: 0 var(--lado); }
+  html.motion .respiro { width: 80vw; margin: -40vw 0 0 -40vw; top: 48%; }
+  html.motion .resp-dica { font-size: 1rem; bottom: 5vh; padding: 0 3.6rem; }
+
+  html.motion .mass-tit { top: 4.8rem; }
+  html.motion .ilu { left: 50%; top: 7.5rem; width: 52vw; margin: 0 0 0 -26vw; }
+  html.motion .mass-txt { left: var(--lado); right: var(--lado); top: auto; bottom: 4vh; transform: none; }
+  html.motion .mass-nome { font-size: 2.4rem; margin-bottom: .8rem; }
+  html.motion .mass-dados { gap: .5rem; }
+  html.motion .mass-dados div { grid-template-columns: 4.8rem 1fr; gap: .6rem; }
+  html.motion .mass-dados dd { font-size: .98rem; }
+
+  html.motion .obj-tit { top: 4.8rem; }
+  html.motion .grupo-nome { top: 8rem; width: auto; right: var(--lado); transform: none; font-size: 2.8rem; }
+  html.motion .grupo-itens { left: var(--lado); right: var(--lado); top: auto; bottom: 5vh; transform: none; }
+  html.motion .grupo-itens li { padding: .6rem 0; font-size: .98rem; }
+
+  html.motion .quem-foto { left: 50%; top: 6rem; width: 44vw; transform: translateX(-50%); }
+  html.motion .quem-txt { left: var(--lado); right: var(--lado); top: auto; bottom: 4vh; transform: none; }
+  html.motion .quem-tit { font-size: 2.2rem; }
+  html.motion .quem-nome { margin-top: .6rem; }
+  html.motion .quem-fala { margin-top: .8rem; }
+  html.motion .quem-fala p { font-size: 1.1rem; }
+  html.motion .quem-obs { display: none; }
+
+  html.motion .ag-tit { top: 5rem; font-size: 2.4rem; }
+  html.motion .ag-caminho { top: 10rem; right: var(--lado); }
+  html.motion .ag-onda { display: none; }
+  html.motion .ag-passos { grid-template-columns: 1fr; gap: 1rem; padding: 0; }
+  html.motion .ag-passos li { display: grid; }
+  html.motion .ag-n { margin: 0; width: 2.4rem; height: 2.4rem; font-size: 1.05rem; }
+  html.motion .ag-passos h3 { font-size: 1.3rem; }
+  html.motion .ag-passos p { font-size: .98rem; }
+  html.motion .ag-info { grid-template-columns: 1fr; right: var(--lado); bottom: 3vh; gap: .3rem; }
+  html.motion .ag-info div { grid-template-columns: 5.6rem 1fr; padding-top: .4rem; font-size: .95rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

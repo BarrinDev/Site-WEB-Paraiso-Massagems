@@ -1,0 +1,12 @@
+{
+  "name": "rf-massagem",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "otimizar": "node scripts/otimizar.mjs",
+    "dev": "npx --yes serve . -l 4370"
+  },
+  "devDependencies": {
+    "sharp": "^0.33.5"
+  }
+}
